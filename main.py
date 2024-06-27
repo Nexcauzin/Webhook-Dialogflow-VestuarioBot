@@ -4,12 +4,20 @@ from sheets.cadastros import cadastrar_sheets_zap, cadastrar_sheets_tel
 from threading import Thread
 import asyncio
 from flask_executor import Executor
+from encomendas import rastreio
 
 app = Flask(__name__)
 executor = Executor(app)
 
 # Variáveis para o envio periódico de mensagens:
-envia_promocoes.token_telegram = '7047287612:AAEMimLtSeFAbVsgkY8cmGKnZZhVjon5vik'
+envia_promocoes.token_telegram = '7408783735:AAF4oOtPpPGQXxpiJmXQP-_fosRZ7zjpR5g'
+
+# Mensagens de retorno do rastreio
+with open('encomendas/respostas/cpfNAO.json', 'r+', encoding='utf-8') as file:
+    cpfNAO = file.read()
+
+with open('encomendas/respostas/codigoNAO.json', 'r+', encoding='utf-8') as file:
+    codigoNAO = file.read()
 
 # Inicializando o CRON
 def start_async_loop():
@@ -22,7 +30,8 @@ def start_cron():
     thread = Thread(target=start_async_loop)
     thread.start()
 
-start_cron()
+#Função que inicia o CRON
+#start_cron()
 
 @app.route('/', methods=['POST'])
 def main_route():
@@ -64,6 +73,33 @@ def main_route():
                 cadastro_telegram_feito = True
     except Exception as e:
         print(f"Erro no cadastro do Telegram: {e}")
+
+
+    # Bloco 3 -> Testa se é para fazer o rastreio da encomenda
+    try:
+        for contexto in contextos:
+            parametros = contexto['parameters']
+            entrada = parametros.get('codigo')
+
+            # Testa se o código de rastreio é valido:
+            try:
+                return jsonify(rastreio.rastreioEncomenda(entrada))
+
+            except:
+                # Testa se é CPF
+                if rastreio.verificaCPF(entrada) == 11:
+                    return jsonify(rastreio.rastreioCPF(entrada))
+
+                # Se não é CPF válido
+                else:
+                    return jsonify(cpfNAO)
+
+    except:
+        print(f"Erro no rastreio")
+
+
+
+    print(data)
 
     return jsonify(data)
 
