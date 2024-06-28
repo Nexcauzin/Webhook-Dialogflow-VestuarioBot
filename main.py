@@ -75,31 +75,31 @@ def main_route():
         print(f"Erro no cadastro do Telegram: {e}")
 
 
-    # Bloco 3 -> Testa se é para fazer o rastreio da encomenda
+    #Bloco 3 -> Testa se é para fazer o rastreio da encomenda
     try:
+        # Obtendo as informações do Webhook
         for contexto in contextos:
             parametros = contexto['parameters']
             entrada = parametros.get('codigo')
+            variaveis_rastreio = rastreio.rastreioEncomenda(entrada)
+            # Testa se é CPF
+            if len(rastreio.verificaCPF(entrada)) == 11:
+                data['fulfillmentText'] = 'É CPF'
+                return jsonify(data)
+            else:
+                data['fulfillmentText'] = 'NÃO É CPF'
+                return jsonify(data)
+
 
             # Testa se o código de rastreio é valido:
-            try:
-                return jsonify(rastreio.rastreioEncomenda(entrada))
-
-            except:
-                # Testa se é CPF
-                if rastreio.verificaCPF(entrada) == 11:
-                    return jsonify(rastreio.rastreioCPF(entrada))
-
-                # Se não é CPF válido
-                else:
-                    return jsonify(cpfNAO)
+            msg_corrigida = f"Encontrei o seu pedido aqui, o status da entrega do seu pedido é:\n{variaveis_rastreio['estado']} - {variaveis_rastreio['data']}\n\nPosso te ajudar com algo mais?\nSe sim, digite menu\nSe não, digite sair."
+            print(msg_corrigida)
+            data['fulfillmentText'] = msg_corrigida
 
     except:
-        print(f"Erro no rastreio")
+        data['fulfillmentText'] = 'Verifique se o CPF ou CÓDIGO DE RASTREIO estão corretos, por favor, e tente novamente!'
 
-
-
-    print(data)
+    #print(data)
 
     return jsonify(data)
 

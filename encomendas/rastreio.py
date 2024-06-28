@@ -1,28 +1,11 @@
 import requests
 from bs4 import BeautifulSoup
 import re
-import json
-
-codigoValido = '''
-{
-    "fulfillmentMessages": [
-        {
-            "text": {
-                "text": [
-                    "Encontrei o seu pedido aqui, o status da entrega do seu pedido é:\n{} - {}\nPosso te ajudar com algo mais?\nSe sim, digite menu\nSe não, digite sair."
-                ]
-            }
-        }
-    ]
-}
-'''
 
 def verificaCPF(valor):
-    # Remover todos os caracteres não numéricos
-    numeros = re.sub(r'\D', '', valor)
-    # Pegar apenas os primeiros 11 caracteres
-    numeros = numeros[:11]
-    return numeros
+    numeros = re.findall(r'\d', valor)
+    cpf = ''.join(numeros)
+    return cpf
 
 def rastreioCPF(cpf):
     return 10
@@ -57,8 +40,8 @@ def rastreioEncomenda(cod_rastreio):
 
         variaveis_rastreio = {}
 
-        variaveis_rastreio['data'] = data_html[66:88]
-        print(ocorrencias)
+        variaveis_rastreio['data'] = data_html[66:85]
+        #print(ocorrencias)
         for ocorrencia in ocorrencias:
             variaveis_rastreio[ocorrencia[0]] = ocorrencia[1]
 
@@ -67,7 +50,4 @@ def rastreioEncomenda(cod_rastreio):
         #print(f"Código informado: {variaveis_rastreio['codigo']}")
         #print(f"Data da movimentação: {variaveis_rastreio['data']}")
         #print(f"Estado da encomenda: {variaveis_rastreio['estado']}")
-
-        resposta = codigoValido.format(variaveis_rastreio['estado'], variaveis_rastreio['data'])
-        output = json.loads(resposta)
-        return output
+        return variaveis_rastreio
