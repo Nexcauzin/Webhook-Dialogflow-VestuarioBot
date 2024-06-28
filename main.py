@@ -10,7 +10,7 @@ app = Flask(__name__)
 executor = Executor(app)
 
 # Variáveis para o envio periódico de mensagens:
-envia_promocoes.token_telegram = '7408783735:AAF4oOtPpPGQXxpiJmXQP-_fosRZ7zjpR5g'
+envia_promocoes.token_telegram = ''
 
 # Mensagens de retorno do rastreio
 with open('encomendas/respostas/cpfNAO.json', 'r+', encoding='utf-8') as file:
