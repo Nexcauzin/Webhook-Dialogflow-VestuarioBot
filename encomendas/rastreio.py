@@ -1,6 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
 import re
+import pandas as pd
+import gspread
+from sheets import cadastros
 
 def verificaCPF(valor):
     numeros = re.findall(r'\d', valor)
@@ -8,7 +11,17 @@ def verificaCPF(valor):
     return cpf
 
 def rastreioCPF(cpf):
-    return 10
+    cadastros.fazer_login()
+    sheet = cadastros.abrir_planilha()
+    dados = sheet.worksheet('encomendaCPF')
+    colunas = dados.get_all_values().pop(0)
+    df_baseDados = pd.DataFrame(data=dados.get_all_values(), columns=colunas).drop(index=0).reset_index(drop=True)
+
+    linhaCPF = df_baseDados.index[df_baseDados['cpf'] == cpf].tolist()
+    codigo = df_baseDados.loc[linhaCPF[0], 'codigo']
+
+    variaveis_rastreio = rastreioEncomenda(codigo)
+    return variaveis_rastreio
 
 def rastreioEncomenda(cod_rastreio):
     url = f"https://linketrack.com/{cod_rastreio}/html?utm_source=link"

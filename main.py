@@ -10,14 +10,7 @@ app = Flask(__name__)
 executor = Executor(app)
 
 # Variáveis para o envio periódico de mensagens:
-envia_promocoes.token_telegram = ''
-
-# Mensagens de retorno do rastreio
-with open('encomendas/respostas/cpfNAO.json', 'r+', encoding='utf-8') as file:
-    cpfNAO = file.read()
-
-with open('encomendas/respostas/codigoNAO.json', 'r+', encoding='utf-8') as file:
-    codigoNAO = file.read()
+envia_promocoes.token_telegram = '7408783735:AAF4oOtPpPGQXxpiJmXQP-_fosRZ7zjpR5g'
 
 # Inicializando o CRON
 def start_async_loop():
@@ -81,19 +74,23 @@ def main_route():
         for contexto in contextos:
             parametros = contexto['parameters']
             entrada = parametros.get('codigo')
-            variaveis_rastreio = rastreio.rastreioEncomenda(entrada)
+
             # Testa se é CPF
             if len(rastreio.verificaCPF(entrada)) == 11:
-                data['fulfillmentText'] = 'É CPF'
+                cpf = rastreio.verificaCPF(entrada)
+                variaveis_rastreio = rastreio.rastreioCPF(cpf)
+                msg_corrigida = f"Encontrei o seu pedido aqui, o status da entrega do seu pedido é:\n{variaveis_rastreio['estado']} - {variaveis_rastreio['data']}\n\nPosso te ajudar com algo mais?\nSe sim, digite menu\nSe não, digite sair."
+                print(msg_corrigida)
+                data['fulfillmentText'] = msg_corrigida
                 return jsonify(data)
             else:
                 data['fulfillmentText'] = 'NÃO É CPF'
                 return jsonify(data)
 
-
-            # Testa se o código de rastreio é valido:
+            # Se não for CPF, testa o código de rastreio:
+            variaveis_rastreio = rastreio.rastreioEncomenda(entrada)
             msg_corrigida = f"Encontrei o seu pedido aqui, o status da entrega do seu pedido é:\n{variaveis_rastreio['estado']} - {variaveis_rastreio['data']}\n\nPosso te ajudar com algo mais?\nSe sim, digite menu\nSe não, digite sair."
-            print(msg_corrigida)
+            #print(msg_corrigida)
             data['fulfillmentText'] = msg_corrigida
 
     except:
