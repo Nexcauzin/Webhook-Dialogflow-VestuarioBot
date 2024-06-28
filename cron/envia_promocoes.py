@@ -26,6 +26,7 @@ async def send_telegram_message():
 
         except (telegram.error.NetworkError, httpx.ConnectError) as erro:
             print(f'Erro:{erro} | Iteração:{tentas}')
+            tentas=+1
             continue
 
 

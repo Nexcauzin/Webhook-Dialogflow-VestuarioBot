@@ -4,6 +4,7 @@ import re
 import pandas as pd
 import gspread
 from sheets import cadastros
+import time
 
 def verificaCPF(valor):
     numeros = re.findall(r'\d', valor)
@@ -13,14 +14,22 @@ def verificaCPF(valor):
 def rastreioCPF(cpf):
     cadastros.fazer_login()
     sheet = cadastros.abrir_planilha()
+    print('(RASTREIO) Login concluido')
     dados = sheet.worksheet('encomendaCPF')
+    print('(RASTREIO) Valores do sheets extraidos')
     colunas = dados.get_all_values().pop(0)
+    print('(RASTREIO) Colunas do sheets coletadas')
     df_baseDados = pd.DataFrame(data=dados.get_all_values(), columns=colunas).drop(index=0).reset_index(drop=True)
-
-    linhaCPF = df_baseDados.index[df_baseDados['cpf'] == cpf].tolist()
+    print(df_baseDados)
+    print('(RASTREIO) Transformação em DF concluida')
+    linhaCPF = df_baseDados.index[df_baseDados['cpf'] == str(cpf)].tolist()
+    print(linhaCPF)
+    print('(RASTREIO) Index do CPF coletado')
     codigo = df_baseDados.loc[linhaCPF[0], 'codigo']
+    print('(RASTREIO) Codigo de rastreio obtido')
 
     variaveis_rastreio = rastreioEncomenda(codigo)
+    print('(RASTREIO) Rastreio realizado')
     return variaveis_rastreio
 
 def rastreioEncomenda(cod_rastreio):

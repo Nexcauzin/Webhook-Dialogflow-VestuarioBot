@@ -10,7 +10,7 @@ app = Flask(__name__)
 executor = Executor(app)
 
 # Variáveis para o envio periódico de mensagens:
-envia_promocoes.token_telegram = '7408783735:AAF4oOtPpPGQXxpiJmXQP-_fosRZ7zjpR5g'
+envia_promocoes.token_telegram = ''
 
 # Inicializando o CRON
 def start_async_loop():
@@ -24,7 +24,7 @@ def start_cron():
     thread.start()
 
 #Função que inicia o CRON
-#start_cron()
+start_cron()
 
 @app.route('/', methods=['POST'])
 def main_route():
@@ -82,9 +82,6 @@ def main_route():
                 msg_corrigida = f"Encontrei o seu pedido aqui, o status da entrega do seu pedido é:\n{variaveis_rastreio['estado']} - {variaveis_rastreio['data']}\n\nPosso te ajudar com algo mais?\nSe sim, digite menu\nSe não, digite sair."
                 print(msg_corrigida)
                 data['fulfillmentText'] = msg_corrigida
-                return jsonify(data)
-            else:
-                data['fulfillmentText'] = 'NÃO É CPF'
                 return jsonify(data)
 
             # Se não for CPF, testa o código de rastreio:
